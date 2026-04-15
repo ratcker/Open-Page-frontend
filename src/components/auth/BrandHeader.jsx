@@ -1,0 +1,15 @@
+export function BrandHeader() {
+  return (
+    <div className="brand-header">
+      <div className="brand">
+        <div className="brand-mark" aria-hidden="true">
+          <span />
+          <span />
+        </div>
+        <span className="brand-name">OpenPage</span>
+      </div>
+
+      <div className="brand-badge">React Workspace</div>
+    </div>
+  )
+}

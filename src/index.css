@@ -1,0 +1,39 @@
+:root {
+  font-family: "Segoe UI", "Noto Sans", "DejaVu Sans", Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #f5efff;
+  background:
+    radial-gradient(circle at top, rgba(52, 21, 109, 0.35), transparent 38%),
+    radial-gradient(circle at 70% 65%, rgba(71, 23, 184, 0.18), transparent 30%),
+    #090511;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+a {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+button,
+input {
+  font: inherit;
+}
