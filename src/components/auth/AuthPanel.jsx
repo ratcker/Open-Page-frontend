@@ -3,7 +3,6 @@ import { AuthForm } from './AuthForm.jsx'
 
 export function AuthPanel({ isLoginMode, onToggleMode }) {
   const titleText = isLoginMode ? 'Вход в аккаунт' : 'Создайте аккаунт'
-  const buttonText = isLoginMode ? 'Войти' : 'Зарегистрироваться'
 
   return (
     <section className="auth-card" aria-labelledby="auth-title">
@@ -15,7 +14,7 @@ export function AuthPanel({ isLoginMode, onToggleMode }) {
         </h1>
       </div>
 
-      <AuthForm isLoginMode={isLoginMode} buttonText={buttonText} />
+      <AuthForm isLoginMode={isLoginMode} />
 
       <p className="auth-footer">
         {isLoginMode ? 'Ещё нет аккаунта? ' : 'Уже есть аккаунт? '}
