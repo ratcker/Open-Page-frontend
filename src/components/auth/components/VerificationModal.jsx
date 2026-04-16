@@ -36,7 +36,7 @@ export function VerificationModal({
         </button>
 
         <div className="modal-copy">
-          <p className="modal-eyebrow">Подтверждение email</p>
+          <p className="modal-eyebrow">Подтверждение почты</p>
           <h2 id="verification-title" className="modal-title">
             Введите код из письма
           </h2>
@@ -58,9 +58,9 @@ export function VerificationModal({
 
           <div className="modal-actions">
             <SecondaryButton onClick={onClose} disabled={isLoading}>
-              Позже
+              Принеси мне пива
             </SecondaryButton>
-            <SubmitButton isLoading={isLoading}>Зарегистрироваться</SubmitButton>
+            <SubmitButton isLoading={isLoading}>Подтвердить</SubmitButton>
           </div>
         </form>
       </div>

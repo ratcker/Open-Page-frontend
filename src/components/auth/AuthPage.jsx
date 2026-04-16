@@ -1,3 +1,4 @@
+import './AuthPage.css'
 import { AuthPanel } from './AuthPanel.jsx'
 
 export function AuthPage({ isLoginMode, onToggleMode }) {

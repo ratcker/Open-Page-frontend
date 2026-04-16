@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import './App.css'
 import { AuthPage } from './components/auth/AuthPage.jsx'
 
 function App() {

@@ -7,7 +7,6 @@ export function InputField({
 }) {
   return (
     <label className="field">
-      <span className="sr-only">{placeholder}</span>
       <input
         type={type}
         name={name}

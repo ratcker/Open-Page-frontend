@@ -1,20 +1,21 @@
 import { useState } from 'react'
-import { InputField } from './InputField.jsx'
-import { PasswordField } from './PasswordField.jsx'
-import { SubmitButton } from './SubmitButton.jsx'
-import { SecondaryButton } from './SecondaryButton.jsx'
-import { VerificationModal } from './VerificationModal.jsx'
-import { AuthFeedback } from './AuthFeedback.jsx'
+import { InputField } from './components/InputField.jsx'
+import { PasswordField } from './components/PasswordField.jsx'
+import { SubmitButton } from './components/SubmitButton.jsx'
+import { SecondaryButton } from './components/SecondaryButton.jsx'
+import { VerificationModal } from './components/VerificationModal.jsx'
+import { AuthFeedback } from './components/AuthFeedback.jsx'
 import {
   loginUser,
   registerUser,
   verifyRegistrationCode,
-} from '../../services/auth.js'
+} from './api/authApi.js'
 
 const initialRegisterForm = {
   fullName: '',
   email: '',
   password: '',
+  confirmPassword: '',
 }
 
 const initialLoginForm = {
@@ -76,6 +77,15 @@ export function AuthForm({ isLoginMode }) {
     setVerificationForm((current) => ({ ...current, [name]: value }))
   }
 
+  function validateRegisterForm() {
+    if (registerForm.password !== registerForm.confirmPassword) {
+      setErrorMessage('Пароли не совпадают.')
+      return false
+    }
+
+    return true
+  }
+
   async function handleLoginSubmit(event) {
     event.preventDefault()
     clearMessages()
@@ -95,6 +105,11 @@ export function AuthForm({ isLoginMode }) {
 
   async function handleSendCode() {
     clearMessages()
+
+    if (!validateRegisterForm()) {
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -108,7 +123,9 @@ export function AuthForm({ isLoginMode }) {
       )
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Не удалось отправить код подтверждения.',
+        error instanceof Error
+          ? error.message
+          : 'Не удалось отправить код подтверждения.',
       )
     } finally {
       setIsSubmitting(false)
@@ -138,10 +155,10 @@ export function AuthForm({ isLoginMode }) {
         code: verificationForm.code,
       })
       resetRegisterFlow()
-      setSuccessMessage('Регистрация завершена, email подтвержден.')
+      setSuccessMessage('Регистрация завершена, почта подтверждена.')
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Не удалось подтвердить email.',
+        error instanceof Error ? error.message : 'Не удалось подтвердить почту.',
       )
     } finally {
       setIsSubmitting(false)
@@ -174,7 +191,15 @@ export function AuthForm({ isLoginMode }) {
               onChange={updateActiveField}
             />
             <PasswordField
+              name="password"
+              placeholder="Пароль"
               value={activeForm.password}
+              onChange={updateActiveField}
+            />
+            <PasswordField
+              name="confirmPassword"
+              placeholder="Повторите пароль"
+              value={activeForm.confirmPassword}
               onChange={updateActiveField}
             />
           </>
@@ -189,6 +214,8 @@ export function AuthForm({ isLoginMode }) {
               onChange={updateActiveField}
             />
             <PasswordField
+              name="password"
+              placeholder="Пароль"
               value={activeForm.password}
               onChange={updateActiveField}
             />

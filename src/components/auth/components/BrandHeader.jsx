@@ -8,8 +8,6 @@ export function BrandHeader() {
         </div>
         <span className="brand-name">OpenPage</span>
       </div>
-
-      <div className="brand-badge">React Workspace</div>
     </div>
   )
 }

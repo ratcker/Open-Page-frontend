@@ -24,7 +24,12 @@ function generateUsername(fullName, email) {
   return `${base}-${suffix}`
 }
 
-export function buildRegisterPayload({ fullName, email, password }) {
+export function buildRegisterPayload({
+  fullName,
+  email,
+  password,
+  confirmPassword,
+}) {
   const { firstName, lastName } = splitFullName(fullName)
   const username = generateUsername(fullName, email)
 
@@ -32,7 +37,7 @@ export function buildRegisterPayload({ fullName, email, password }) {
     username,
     email: email.trim(),
     password,
-    password2: password,
+    password2: confirmPassword,
     first_name: firstName,
     last_name: lastName,
   }

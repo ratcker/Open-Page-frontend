@@ -1,4 +1,4 @@
-import { BrandHeader } from './BrandHeader.jsx'
+import { BrandHeader } from './components/BrandHeader.jsx'
 import { AuthForm } from './AuthForm.jsx'
 
 export function AuthPanel({ isLoginMode, onToggleMode }) {
