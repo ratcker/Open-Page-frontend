@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { InputField } from './InputField.jsx'
 import { PasswordField } from './PasswordField.jsx'
 import { SubmitButton } from './SubmitButton.jsx'
+import { SecondaryButton } from './SecondaryButton.jsx'
+import { VerificationModal } from './VerificationModal.jsx'
+import { AuthFeedback } from './AuthFeedback.jsx'
 import {
   loginUser,
   registerUser,
@@ -30,16 +33,28 @@ export function AuthForm({ isLoginMode }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
-  const [awaitingVerification, setAwaitingVerification] = useState(false)
   const [pendingEmail, setPendingEmail] = useState('')
+  const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false)
 
   const buttonText = isLoginMode
     ? 'Войти'
-    : awaitingVerification
-      ? 'Подтвердить email'
-      : 'Зарегистрироваться'
+    : pendingEmail
+      ? 'Ввести код'
+      : 'Отправить код'
 
   const activeForm = isLoginMode ? loginForm : registerForm
+
+  function clearMessages() {
+    setErrorMessage('')
+    setSuccessMessage('')
+  }
+
+  function resetRegisterFlow() {
+    setRegisterForm(initialRegisterForm)
+    setVerificationForm(initialVerificationForm)
+    setPendingEmail('')
+    setIsVerificationModalOpen(false)
+  }
 
   function updateActiveField(name, value) {
     if (isLoginMode) {
@@ -48,42 +63,27 @@ export function AuthForm({ isLoginMode }) {
     }
 
     setRegisterForm((current) => ({ ...current, [name]: value }))
+
+    if (pendingEmail) {
+      setPendingEmail('')
+      setVerificationForm(initialVerificationForm)
+      setIsVerificationModalOpen(false)
+      setSuccessMessage('Данные изменены. Отправьте новый код подтверждения.')
+    }
   }
 
   function handleVerificationChange(name, value) {
     setVerificationForm((current) => ({ ...current, [name]: value }))
   }
 
-  async function handleSubmit(event) {
+  async function handleLoginSubmit(event) {
     event.preventDefault()
-    setErrorMessage('')
-    setSuccessMessage('')
+    clearMessages()
     setIsSubmitting(true)
 
     try {
-      if (isLoginMode) {
-        await loginUser(loginForm)
-        setSuccessMessage('Вход выполнен успешно.')
-      } else if (awaitingVerification) {
-        await verifyRegistrationCode({
-          email: pendingEmail,
-          code: verificationForm.code,
-        })
-        setSuccessMessage('Email успешно подтверждён.')
-        setVerificationForm(initialVerificationForm)
-        setAwaitingVerification(false)
-        setRegisterForm(initialRegisterForm)
-        setPendingEmail('')
-      } else {
-        const response = await registerUser(registerForm)
-
-        setPendingEmail(registerForm.email)
-        setAwaitingVerification(true)
-        setVerificationForm(initialVerificationForm)
-        setSuccessMessage(
-          response.detail || 'Код подтверждения отправлен на электронную почту.',
-        )
-      }
+      await loginUser(loginForm)
+      setSuccessMessage('Вход выполнен успешно.')
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : 'Произошла ошибка авторизации.',
@@ -93,65 +93,140 @@ export function AuthForm({ isLoginMode }) {
     }
   }
 
+  async function handleSendCode() {
+    clearMessages()
+    setIsSubmitting(true)
+
+    try {
+      const response = await registerUser(registerForm)
+
+      setPendingEmail(registerForm.email.trim())
+      setVerificationForm(initialVerificationForm)
+      setIsVerificationModalOpen(true)
+      setSuccessMessage(
+        response.detail || 'Код подтверждения отправлен на электронную почту.',
+      )
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Не удалось отправить код подтверждения.',
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  async function handleRegisterAction(event) {
+    event.preventDefault()
+
+    if (pendingEmail) {
+      clearMessages()
+      setIsVerificationModalOpen(true)
+      return
+    }
+
+    await handleSendCode()
+  }
+
+  async function handleVerificationSubmit(event) {
+    event.preventDefault()
+    clearMessages()
+    setIsSubmitting(true)
+
+    try {
+      await verifyRegistrationCode({
+        email: pendingEmail,
+        code: verificationForm.code,
+      })
+      resetRegisterFlow()
+      setSuccessMessage('Регистрация завершена, email подтвержден.')
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Не удалось подтвердить email.',
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  function closeVerificationModal() {
+    setIsVerificationModalOpen(false)
+  }
+
   return (
-    <form className="auth-form" onSubmit={handleSubmit}>
-      {!isLoginMode && !awaitingVerification && (
-        <>
-          <InputField
-            name="fullName"
-            placeholder="Полное имя"
-            value={activeForm.fullName}
-            onChange={updateActiveField}
-          />
-          <InputField
-            name="email"
-            type="email"
-            placeholder="Электронная почта"
-            value={activeForm.email}
-            onChange={updateActiveField}
-          />
-          <PasswordField
-            value={activeForm.password}
-            onChange={updateActiveField}
-          />
-        </>
-      )}
+    <>
+      <form
+        className="auth-form"
+        onSubmit={isLoginMode ? handleLoginSubmit : handleRegisterAction}
+      >
+        {!isLoginMode && (
+          <>
+            <InputField
+              name="fullName"
+              placeholder="Полное имя"
+              value={activeForm.fullName}
+              onChange={updateActiveField}
+            />
+            <InputField
+              name="email"
+              type="email"
+              placeholder="Электронная почта"
+              value={activeForm.email}
+              onChange={updateActiveField}
+            />
+            <PasswordField
+              value={activeForm.password}
+              onChange={updateActiveField}
+            />
+          </>
+        )}
 
-      {isLoginMode && (
-        <>
-          <InputField
-            name="identity"
-            placeholder="Имя пользователя или email"
-            value={activeForm.identity}
-            onChange={updateActiveField}
-          />
-          <PasswordField
-            value={activeForm.password}
-            onChange={updateActiveField}
-          />
-        </>
-      )}
+        {isLoginMode && (
+          <>
+            <InputField
+              name="identity"
+              placeholder="Имя пользователя или email"
+              value={activeForm.identity}
+              onChange={updateActiveField}
+            />
+            <PasswordField
+              value={activeForm.password}
+              onChange={updateActiveField}
+            />
+          </>
+        )}
 
-      {!isLoginMode && awaitingVerification && (
-        <>
+        {!isLoginMode && pendingEmail && (
           <div className="status-chip">
-            Код отправлен на <span>{pendingEmail}</span>
+            Код уже отправлен на <span>{pendingEmail}</span>
           </div>
-          <InputField
-            name="code"
-            placeholder="Код из письма"
-            value={verificationForm.code}
-            onChange={handleVerificationChange}
-          />
-        </>
-      )}
+        )}
 
-      {errorMessage && <p className="form-feedback form-feedback-error">{errorMessage}</p>}
-      {successMessage && (
-        <p className="form-feedback form-feedback-success">{successMessage}</p>
-      )}
+        <AuthFeedback type="error">{errorMessage}</AuthFeedback>
+        <AuthFeedback type="success">{successMessage}</AuthFeedback>
 
-      <SubmitButton isLoading={isSubmitting}>{buttonText}</SubmitButton>
-    </form>
+        {!isLoginMode && pendingEmail ? (
+          <div className="action-row">
+            <SecondaryButton onClick={handleSendCode} disabled={isSubmitting}>
+              Отправить код заново
+            </SecondaryButton>
+            <SubmitButton isLoading={isSubmitting}>{buttonText}</SubmitButton>
+          </div>
+        ) : (
+          <SubmitButton isLoading={isSubmitting}>{buttonText}</SubmitButton>
+        )}
+      </form>
+
+      <VerificationModal
+        isOpen={!isLoginMode && isVerificationModalOpen}
+        email={pendingEmail}
+        code={verificationForm.code}
+        isLoading={isSubmitting}
+        errorMessage={errorMessage}
+        successMessage={successMessage}
+        onCodeChange={handleVerificationChange}
+        onClose={closeVerificationModal}
+        onSubmit={handleVerificationSubmit}
+      />
+    </>
   )
 }
