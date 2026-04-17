@@ -1,7 +1,7 @@
 import { BrandHeader } from './components/BrandHeader.jsx'
 import { AuthForm } from './AuthForm.jsx'
 
-export function AuthPanel({ isLoginMode, onToggleMode }) {
+export function AuthPanel({ isLoginMode, onToggleMode, onAuthenticated }) {
   const titleText = isLoginMode ? 'Вход в аккаунт' : 'Создайте аккаунт'
 
   return (
@@ -14,7 +14,10 @@ export function AuthPanel({ isLoginMode, onToggleMode }) {
         </h1>
       </div>
 
-      <AuthForm isLoginMode={isLoginMode} />
+      <AuthForm
+        isLoginMode={isLoginMode}
+        onAuthenticated={onAuthenticated}
+      />
 
       <p className="auth-footer">
         {isLoginMode ? 'Ещё нет аккаунта? ' : 'Уже есть аккаунт? '}
