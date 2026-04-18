@@ -28,8 +28,9 @@ npm run build
 ## Docker
 
 ```bash
-docker build --build-arg VITE_API_BASE_URL=http://localhost:8000/api -t open-page-frontend .
 docker compose up --build
 ```
 
 Docker: `http://localhost:7070`
+
+Для Docker backend должен быть доступен на хосте по `http://localhost:8000`.
