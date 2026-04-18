@@ -27,7 +27,7 @@ const initialVerificationForm = {
   code: '',
 }
 
-export function AuthForm({ isLoginMode }) {
+export function AuthForm({ isLoginMode, onAuthenticated }) {
   const [registerForm, setRegisterForm] = useState(initialRegisterForm)
   const [loginForm, setLoginForm] = useState(initialLoginForm)
   const [verificationForm, setVerificationForm] = useState(initialVerificationForm)
@@ -94,6 +94,7 @@ export function AuthForm({ isLoginMode }) {
     try {
       await loginUser(loginForm)
       setSuccessMessage('Вход выполнен успешно.')
+      onAuthenticated?.()
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : 'Произошла ошибка авторизации.',
@@ -156,6 +157,7 @@ export function AuthForm({ isLoginMode }) {
       })
       resetRegisterFlow()
       setSuccessMessage('Регистрация завершена, почта подтверждена.')
+      onAuthenticated?.()
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : 'Не удалось подтвердить почту.',

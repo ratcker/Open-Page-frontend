@@ -3,10 +3,8 @@ import {
   buildRegisterPayload,
   buildVerifyEmailPayload,
 } from '../utils/authPayloads.js'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
-const ACCESS_TOKEN_KEY = 'openpage.access'
-const REFRESH_TOKEN_KEY = 'openpage.refresh'
+import { apiClient } from '../../../shared/api/apiClient.js'
+import { setAccessToken } from '../../../shared/api/authStorage.js'
 
 const FIELD_LABELS = {
   email: 'Электронная почта',
@@ -73,94 +71,58 @@ function normalizeErrorMessages(value, fieldName) {
   return label ? `${label}: ${message}` : message
 }
 
-function getApiErrorMessage(data) {
-  if (!data || typeof data !== 'object') {
-    return 'Не удалось выполнить запрос к API.'
-  }
+function getApiErrorMessage(error) {
+  const errorData =
+    error && typeof error === 'object' && 'data' in error ? error.data : null
 
-  const primaryFields = [
-    'detail',
-    'non_field_errors',
-    'password',
-    'password2',
-    'email',
-    'username',
-    'identity',
-    'full_name',
-    'code',
-  ]
-
-  for (const field of primaryFields) {
-    if (field in data) {
-      const message = normalizeErrorMessages(data[field], field)
-
-      if (message) {
-        return message
-      }
+  if (errorData && typeof errorData === 'object') {
+    const normalized = normalizeErrorMessages(errorData)
+    if (normalized) {
+      return normalized
     }
   }
 
-  const fallbackMessage = normalizeErrorMessages(data)
-  return fallbackMessage || 'Не удалось выполнить запрос к API.'
+  const message = error instanceof Error ? error.message : ''
+  return translateMessage(message) || 'Не удалось выполнить запрос к API.'
 }
 
-async function apiRequest(path, options = {}) {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options.headers ?? {}),
-    },
-    ...options,
+async function postPublicJson(path, payload) {
+  return apiClient(path, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    includeAuth: false,
   })
-
-  const data = await response.json().catch(() => ({}))
-
-  if (!response.ok) {
-    throw new Error(getApiErrorMessage(data))
-  }
-
-  return data
 }
 
-function persistAuthTokens(data) {
-  if (data.access) {
-    localStorage.setItem(ACCESS_TOKEN_KEY, data.access)
-  }
-
-  if (data.refresh) {
-    localStorage.setItem(REFRESH_TOKEN_KEY, data.refresh)
-  }
+async function authenticate(path, payload) {
+  const data = await postPublicJson(path, payload)
+  setAccessToken(data.access)
+  return data
 }
 
 export async function registerUser(formValues) {
-  const payload = buildRegisterPayload(formValues)
-
-  return apiRequest('/user/register/', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  })
+  try {
+    return await postPublicJson('/user/register/', buildRegisterPayload(formValues))
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error))
+  }
 }
 
 export async function verifyRegistrationCode({ email, code }) {
-  const payload = buildVerifyEmailPayload({ email, code })
-  const data = await apiRequest('/user/verify-email/', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  })
-
-  persistAuthTokens(data)
-
-  return data
+  try {
+    return await authenticate(
+      '/user/verify-email/',
+      buildVerifyEmailPayload({ email, code }),
+    )
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error))
+  }
 }
 
 export async function loginUser(formValues) {
-  const payload = buildLoginPayload(formValues)
-  const data = await apiRequest('/token/', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  })
-
-  persistAuthTokens(data)
-
-  return data
+  try {
+    return await authenticate('/token/', buildLoginPayload(formValues))
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error))
+  }
 }

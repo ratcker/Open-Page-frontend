@@ -8,12 +8,18 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     server: {
+      port: 7070,
+      strictPort: true,
       proxy: {
         '/api': {
           target: env.VITE_BACKEND_URL || 'http://localhost:8000',
           changeOrigin: true,
         },
       },
+    },
+    preview: {
+      port: 7070,
+      strictPort: true,
     },
   }
 })
