@@ -7,6 +7,10 @@ import { AuthorSection } from './components/AuthorSection.jsx'
 import { CommentsSection } from './components/CommentsSection.jsx'
 import { BookFooter } from './components/BookFooter.jsx'
 import { getBookBySlug, getBookReviews } from './api/bookApi.js'
+import { extractResults } from '../../shared/lib/extractResults.js'
+
+const EMPTY_BOOK_MESSAGE = 'Книга не выбрана.'
+const LOAD_BOOK_ERROR_MESSAGE = 'Не удалось загрузить страницу книги.'
 
 export function BookPage({ slug, onNavigateHome, onNavigateAccount }) {
   const [book, setBook] = useState(null)
@@ -19,7 +23,7 @@ export function BookPage({ slug, onNavigateHome, onNavigateAccount }) {
 
     async function loadBookPage() {
       if (!slug) {
-        setErrorMessage('Книга не выбрана.')
+        setErrorMessage(EMPTY_BOOK_MESSAGE)
         setIsLoading(false)
         return
       }
@@ -33,12 +37,12 @@ export function BookPage({ slug, onNavigateHome, onNavigateAccount }) {
 
         if (!isCancelled) {
           setBook(bookData)
-          setComments(Array.isArray(reviewsData) ? reviewsData : reviewsData.results ?? [])
+          setComments(extractResults(reviewsData))
         }
       } catch (error) {
         if (!isCancelled) {
           setErrorMessage(
-            error instanceof Error ? error.message : 'Не удалось загрузить страницу книги.',
+            error instanceof Error ? error.message : LOAD_BOOK_ERROR_MESSAGE,
           )
         }
       } finally {

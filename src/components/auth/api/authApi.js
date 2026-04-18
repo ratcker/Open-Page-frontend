@@ -4,7 +4,7 @@ import {
   buildVerifyEmailPayload,
 } from '../utils/authPayloads.js'
 import { apiClient } from '../../../shared/api/apiClient.js'
-import { persistAuthTokens } from '../../../shared/api/authStorage.js'
+import { setAccessToken } from '../../../shared/api/authStorage.js'
 
 const FIELD_LABELS = {
   email: 'Электронная почта',
@@ -83,57 +83,45 @@ function getApiErrorMessage(error) {
   }
 
   const message = error instanceof Error ? error.message : ''
+  return translateMessage(message) || 'Не удалось выполнить запрос к API.'
+}
 
-  if (!message) {
-    return 'Не удалось выполнить запрос к API.'
-  }
+async function postPublicJson(path, payload) {
+  return apiClient(path, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    includeAuth: false,
+  })
+}
 
-  return translateMessage(message)
+async function authenticate(path, payload) {
+  const data = await postPublicJson(path, payload)
+  setAccessToken(data.access)
+  return data
 }
 
 export async function registerUser(formValues) {
-  const payload = buildRegisterPayload(formValues)
-
   try {
-    return await apiClient('/user/register/', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-      includeAuth: false,
-    })
+    return await postPublicJson('/user/register/', buildRegisterPayload(formValues))
   } catch (error) {
     throw new Error(getApiErrorMessage(error))
   }
 }
 
 export async function verifyRegistrationCode({ email, code }) {
-  const payload = buildVerifyEmailPayload({ email, code })
-
   try {
-    const data = await apiClient('/user/verify-email/', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-      includeAuth: false,
-    })
-
-    persistAuthTokens(data)
-    return data
+    return await authenticate(
+      '/user/verify-email/',
+      buildVerifyEmailPayload({ email, code }),
+    )
   } catch (error) {
     throw new Error(getApiErrorMessage(error))
   }
 }
 
 export async function loginUser(formValues) {
-  const payload = buildLoginPayload(formValues)
-
   try {
-    const data = await apiClient('/token/', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-      includeAuth: false,
-    })
-
-    persistAuthTokens(data)
-    return data
+    return await authenticate('/token/', buildLoginPayload(formValues))
   } catch (error) {
     throw new Error(getApiErrorMessage(error))
   }

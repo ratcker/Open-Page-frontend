@@ -1,23 +1,41 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { Navigate, Route, Routes, useNavigate, useParams } from 'react-router-dom'
 import { AuthPage } from './components/auth/AuthPage.jsx'
 import { HomePage } from './components/home/HomePage.jsx'
 import { BookPage } from './components/book/BookPage.jsx'
 import { AccountPage } from './components/account/AccountPage.jsx'
 
+function BookPageRoute({ onBookSlugChange, onNavigateHome, onNavigateAccount }) {
+  const { slug = '' } = useParams()
+
+  useEffect(() => {
+    if (slug) {
+      onBookSlugChange(slug)
+    }
+  }, [onBookSlugChange, slug])
+
+  return (
+    <BookPage
+      slug={slug}
+      onNavigateHome={onNavigateHome}
+      onNavigateAccount={onNavigateAccount}
+    />
+  )
+}
+
 function App() {
+  const navigate = useNavigate()
   const [isLoginMode, setIsLoginMode] = useState(true)
   const [isAuthorized, setIsAuthorized] = useState(false)
-  const [currentPage, setCurrentPage] = useState('home')
-  const [selectedBookSlug, setSelectedBookSlug] = useState('')
+  const [lastBookSlug, setLastBookSlug] = useState('')
 
   function handleAuthenticated() {
     setIsAuthorized(true)
-    setCurrentPage('home')
   }
 
   function handleNavigateToBook(slug) {
-    setSelectedBookSlug(slug)
-    setCurrentPage('book')
+    setLastBookSlug(slug)
+    navigate(`/book/${slug}`)
   }
 
   if (!isAuthorized) {
@@ -30,30 +48,38 @@ function App() {
     )
   }
 
-  if (currentPage === 'book') {
-    return (
-      <BookPage
-        slug={selectedBookSlug}
-        onNavigateHome={() => setCurrentPage('home')}
-        onNavigateAccount={() => setCurrentPage('account')}
-      />
-    )
-  }
-
-  if (currentPage === 'account') {
-    return (
-      <AccountPage
-        onNavigateHome={() => setCurrentPage('home')}
-        onNavigateBook={() => setCurrentPage(selectedBookSlug ? 'book' : 'home')}
-      />
-    )
-  }
-
   return (
-    <HomePage
-      onNavigateBook={handleNavigateToBook}
-      onNavigateAccount={() => setCurrentPage('account')}
-    />
+    <Routes>
+      <Route
+        path="/"
+        element={
+          <HomePage
+            onNavigateBook={handleNavigateToBook}
+            onNavigateAccount={() => navigate('/account')}
+          />
+        }
+      />
+      <Route
+        path="/book/:slug"
+        element={
+          <BookPageRoute
+            onBookSlugChange={setLastBookSlug}
+            onNavigateHome={() => navigate('/')}
+            onNavigateAccount={() => navigate('/account')}
+          />
+        }
+      />
+      <Route
+        path="/account"
+        element={
+          <AccountPage
+            onNavigateHome={() => navigate('/')}
+            onNavigateBook={() => navigate(lastBookSlug ? `/book/${lastBookSlug}` : '/')}
+          />
+        }
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   )
 }
 

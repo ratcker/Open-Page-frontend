@@ -1,20 +1,13 @@
-const ACCESS_TOKEN_KEY = 'openpage.access'
-const REFRESH_TOKEN_KEY = 'openpage.refresh'
+let accessToken = null
 
 export function getAccessToken() {
-  return localStorage.getItem(ACCESS_TOKEN_KEY)
+  return accessToken
 }
 
-export function getRefreshToken() {
-  return localStorage.getItem(REFRESH_TOKEN_KEY)
+export function setAccessToken(token) {
+  accessToken = token ?? null
 }
 
-export function persistAuthTokens(data) {
-  if (data.access) {
-    localStorage.setItem(ACCESS_TOKEN_KEY, data.access)
-  }
-
-  if (data.refresh) {
-    localStorage.setItem(REFRESH_TOKEN_KEY, data.refresh)
-  }
+export function clearAccessToken() {
+  accessToken = null
 }

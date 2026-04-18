@@ -6,6 +6,9 @@ import { StatsSection } from './components/StatsSection.jsx'
 import { ReadingListSection } from './components/ReadingListSection.jsx'
 import { ActivitySection } from './components/ActivitySection.jsx'
 import { getCurrentProfile, getReadingHistory } from './api/accountApi.js'
+import { extractResults } from '../../shared/lib/extractResults.js'
+
+const LOAD_PROFILE_ERROR_MESSAGE = 'Не удалось загрузить профиль.'
 
 export function AccountPage({ onNavigateHome, onNavigateBook }) {
   const [profile, setProfile] = useState(null)
@@ -28,12 +31,12 @@ export function AccountPage({ onNavigateHome, onNavigateBook }) {
 
         if (!isCancelled) {
           setProfile(profileData)
-          setReadingHistory(Array.isArray(historyData) ? historyData : historyData.results ?? [])
+          setReadingHistory(extractResults(historyData))
         }
       } catch (error) {
         if (!isCancelled) {
           setErrorMessage(
-            error instanceof Error ? error.message : 'Не удалось загрузить профиль.',
+            error instanceof Error ? error.message : LOAD_PROFILE_ERROR_MESSAGE,
           )
         }
       } finally {
@@ -60,13 +63,15 @@ export function AccountPage({ onNavigateHome, onNavigateBook }) {
     }
   }, [profile, readingHistory])
 
-  const activityItems = useMemo(() => {
-    return readingHistory.slice(0, 2).map((item) => ({
-      id: item.id,
-      title: item.book_title,
-      description: `Последняя прочитанная страница: ${item.last_page_read}`,
-    }))
-  }, [readingHistory])
+  const activityItems = useMemo(
+    () =>
+      readingHistory.slice(0, 2).map((item) => ({
+        id: item.id,
+        title: item.book_title,
+        description: `Последняя прочитанная страница: ${item.last_page_read}`,
+      })),
+    [readingHistory],
+  )
 
   return (
     <main className="account-page">

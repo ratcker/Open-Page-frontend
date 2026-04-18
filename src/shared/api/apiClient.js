@@ -1,6 +1,7 @@
 import { getAccessToken } from './authStorage.js'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
+const DEFAULT_ERROR_MESSAGE = 'Не удалось выполнить запрос.'
 
 function buildHeaders(customHeaders = {}, includeAuth = true) {
   const headers = { ...customHeaders }
@@ -35,21 +36,22 @@ function getDefaultErrorMessage(data) {
   }
 
   if (data && typeof data === 'object') {
-    if (typeof data.detail === 'string') {
+    if (typeof data.detail === 'string' && data.detail.trim()) {
       return data.detail
     }
 
     const firstValue = Object.values(data)[0]
+
     if (Array.isArray(firstValue) && firstValue[0]) {
       return String(firstValue[0])
     }
 
-    if (typeof firstValue === 'string') {
+    if (typeof firstValue === 'string' && firstValue.trim()) {
       return firstValue
     }
   }
 
-  return 'Не удалось выполнить запрос.'
+  return DEFAULT_ERROR_MESSAGE
 }
 
 export async function apiClient(path, options = {}) {

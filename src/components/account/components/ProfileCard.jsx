@@ -3,10 +3,22 @@ function getProfileName(profile) {
   return fullName || profile.username
 }
 
+function getProfileInitials(profile) {
+  const name = getProfileName(profile)
+
+  return name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('')
+}
+
 export function ProfileCard({ profile }) {
   return (
     <section className="account-profile-card">
-      <div className="account-avatar">Фото</div>
+      <div className="account-avatar" aria-hidden="true">
+        {getProfileInitials(profile)}
+      </div>
 
       <div>
         <h2 className="account-title">{getProfileName(profile)}</h2>

@@ -2,7 +2,7 @@ import { BookCard } from './BookCard.jsx'
 
 export function BookGrid({ books, isLoading, errorMessage, onOpenBook }) {
   if (isLoading) {
-    return <section className="empty-state">а где...</section>
+    return <section className="empty-state">Загружаем книги...</section>
   }
 
   if (errorMessage) {
@@ -10,11 +10,7 @@ export function BookGrid({ books, isLoading, errorMessage, onOpenBook }) {
   }
 
   if (!books.length) {
-    return (
-      <section className="empty-state">
-        а где.
-      </section>
-    )
+    return <section className="empty-state">По вашему запросу книги не найдены.</section>
   }
 
   return (

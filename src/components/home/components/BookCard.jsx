@@ -1,9 +1,22 @@
 function getAuthorLabel(book) {
-  if (Array.isArray(book.authors)) {
-    return book.authors.join(', ')
+  if (Array.isArray(book.authors) && book.authors.length) {
+    return book.authors
+      .map((author) => {
+        if (typeof author === 'string') {
+          return author
+        }
+
+        if (author && typeof author === 'object') {
+          return author.full_name || author.name || ''
+        }
+
+        return ''
+      })
+      .filter(Boolean)
+      .join(', ')
   }
 
-  return book.author || 'ДЫЫ БООВ СКИЙ'
+  return book.authors_list || book.author || 'Автор не указан'
 }
 
 function getGenreLabel(book) {
@@ -29,7 +42,7 @@ export function BookCard({ book, onOpenBook }) {
         {book.cover_url ? (
           <img src={book.cover_url} alt={book.title} className="book-cover-image" />
         ) : (
-          'Обложка'
+          'Нет обложки'
         )}
       </div>
       <h2 className="book-title">{book.title}</h2>
