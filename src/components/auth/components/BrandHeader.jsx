@@ -6,7 +6,7 @@ export function BrandHeader() {
           <span />
           <span />
         </div>
-        <span className="brand-name">ОпенПейч.su</span>
+        <span className="brand-name">ОпенПейч.рф</span>
       </div>
     </div>
   )
