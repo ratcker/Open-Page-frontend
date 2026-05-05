@@ -13,6 +13,17 @@ function getProfileInitials(profile) {
     .join('')
 }
 
+function getRoleLabel(role) {
+  const roles = {
+    admin: 'Администратор',
+    author: 'Автор',
+    moderator: 'Модератор',
+    reader: 'Читатель',
+  }
+
+  return roles[role] ?? role ?? 'Читатель'
+}
+
 export function ProfileCard({ profile }) {
   return (
     <section className="account-profile-card">
@@ -24,7 +35,7 @@ export function ProfileCard({ profile }) {
         <h2 className="account-title">{getProfileName(profile)}</h2>
         <p className="account-text">Логин: {profile.username}</p>
         <p className="account-text">Почта: {profile.email}</p>
-        <p className="account-text">Роль: {profile.role || 'reader'}</p>
+        <p className="account-text">Роль: {getRoleLabel(profile.role)}</p>
       </div>
     </section>
   )

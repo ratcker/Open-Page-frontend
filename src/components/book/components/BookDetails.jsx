@@ -11,6 +11,10 @@ function formatDate(dateValue) {
   return date.toLocaleDateString('ru-RU')
 }
 
+function getFreeReadLabel(book) {
+  return book.is_free_to_read || book.is_free ? 'Да' : 'Нет'
+}
+
 export function BookDetails({ book }) {
   return (
     <section className="book-section">
@@ -20,10 +24,13 @@ export function BookDetails({ book }) {
       </p>
 
       <div className="book-detail-list">
-        <div className="book-detail-item">Дата: {formatDate(book.published_at)}</div>
-        <div className="book-detail-item">Страницы: {book.pages || '—'}</div>
+        <div className="book-detail-item">Дата публикации: {formatDate(book.published_at)}</div>
+        <div className="book-detail-item">Страниц: {book.pages || '-'}</div>
         <div className="book-detail-item">
-          Бесплатно: {book.is_free_to_read ? 'Да' : 'Нет'}
+          Бесплатное чтение: {getFreeReadLabel(book)}
+        </div>
+        <div className="book-detail-item">
+          Скачивание: {book.allow_download ? 'Разрешено' : 'Недоступно'}
         </div>
       </div>
     </section>

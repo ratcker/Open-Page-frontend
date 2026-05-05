@@ -1,8 +1,7 @@
-export function BookTopBar({ onNavigateHome, onNavigateAccount }) {
+export function BookTopBar({ onNavigateHome, onNavigateAccount, onLogout }) {
   return (
     <header className="book-topbar">
       <h1 className="book-brand">ОпенПейч</h1>
-      <input className="book-search" type="search" placeholder="Поиск..." />
       <div className="book-topbar-actions">
         <button
           type="button"
@@ -17,6 +16,9 @@ export function BookTopBar({ onNavigateHome, onNavigateAccount }) {
           onClick={onNavigateAccount}
         >
           Аккаунт
+        </button>
+        <button type="button" className="book-topbar-button" onClick={onLogout}>
+          Выйти
         </button>
       </div>
     </header>

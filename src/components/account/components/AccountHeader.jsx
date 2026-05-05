@@ -1,4 +1,4 @@
-export function AccountHeader({ onNavigateHome, onNavigateBook }) {
+export function AccountHeader({ onNavigateHome, onNavigateBook, onLogout }) {
   return (
     <header className="account-header">
       <h1 className="account-brand">ОпенПейч</h1>
@@ -16,6 +16,9 @@ export function AccountHeader({ onNavigateHome, onNavigateBook }) {
           onClick={onNavigateBook}
         >
           Книга
+        </button>
+        <button type="button" className="account-nav-button" onClick={onLogout}>
+          Выйти
         </button>
         <span>Профиль</span>
       </div>

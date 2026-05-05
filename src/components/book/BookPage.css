@@ -24,6 +24,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
   gap: 16px;
   padding: 16px;
   margin-bottom: 20px;
@@ -125,6 +126,12 @@
   gap: 12px;
 }
 
+.book-action-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
 .book-action-button {
   background: linear-gradient(90deg, #3812e0 0%, #7747ff 100%);
   border: 0;
@@ -132,6 +139,16 @@
 
 .book-action-button-secondary {
   background: rgba(39, 28, 67, 0.9);
+}
+
+.book-action-button-secondary:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.book-action-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .book-section {
@@ -188,6 +205,29 @@
 .comments-list {
   display: grid;
   gap: 12px;
+}
+
+.comment-form {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.comment-input {
+  min-height: 96px;
+  width: 100%;
+  resize: vertical;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  background: rgba(11, 8, 20, 0.95);
+  color: #f5efff;
+  font: inherit;
+}
+
+.comment-error {
+  margin: 0 0 16px;
+  color: #ffb7c5;
 }
 
 .comment-card {

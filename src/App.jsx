@@ -4,8 +4,14 @@ import { AuthPage } from './components/auth/AuthPage.jsx'
 import { HomePage } from './components/home/HomePage.jsx'
 import { BookPage } from './components/book/BookPage.jsx'
 import { AccountPage } from './components/account/AccountPage.jsx'
+import { clearAccessToken } from './shared/api/authStorage.js'
 
-function BookPageRoute({ onBookSlugChange, onNavigateHome, onNavigateAccount }) {
+function BookPageRoute({
+  onBookSlugChange,
+  onNavigateHome,
+  onNavigateAccount,
+  onLogout,
+}) {
   const { slug = '' } = useParams()
 
   useEffect(() => {
@@ -19,6 +25,7 @@ function BookPageRoute({ onBookSlugChange, onNavigateHome, onNavigateAccount }) 
       slug={slug}
       onNavigateHome={onNavigateHome}
       onNavigateAccount={onNavigateAccount}
+      onLogout={onLogout}
     />
   )
 }
@@ -33,9 +40,25 @@ function App() {
     setIsAuthorized(true)
   }
 
+  function handleLogout() {
+    clearAccessToken()
+    setIsAuthorized(false)
+    setLastBookSlug('')
+    navigate('/', { replace: true })
+  }
+
   function handleNavigateToBook(slug) {
     setLastBookSlug(slug)
     navigate(`/book/${slug}`)
+  }
+
+  function handleNavigateFromAccount(slug) {
+    if (slug) {
+      navigate(`/book/${slug}`)
+      return
+    }
+
+    navigate(lastBookSlug ? `/book/${lastBookSlug}` : '/')
   }
 
   if (!isAuthorized) {
@@ -56,6 +79,7 @@ function App() {
           <HomePage
             onNavigateBook={handleNavigateToBook}
             onNavigateAccount={() => navigate('/account')}
+            onLogout={handleLogout}
           />
         }
       />
@@ -66,6 +90,7 @@ function App() {
             onBookSlugChange={setLastBookSlug}
             onNavigateHome={() => navigate('/')}
             onNavigateAccount={() => navigate('/account')}
+            onLogout={handleLogout}
           />
         }
       />
@@ -74,7 +99,8 @@ function App() {
         element={
           <AccountPage
             onNavigateHome={() => navigate('/')}
-            onNavigateBook={() => navigate(lastBookSlug ? `/book/${lastBookSlug}` : '/')}
+            onNavigateBook={handleNavigateFromAccount}
+            onLogout={handleLogout}
           />
         }
       />

@@ -4,15 +4,21 @@ import { AccountHeader } from './components/AccountHeader.jsx'
 import { ProfileCard } from './components/ProfileCard.jsx'
 import { StatsSection } from './components/StatsSection.jsx'
 import { ReadingListSection } from './components/ReadingListSection.jsx'
+import { BookmarksSection } from './components/BookmarksSection.jsx'
 import { ActivitySection } from './components/ActivitySection.jsx'
-import { getCurrentProfile, getReadingHistory } from './api/accountApi.js'
+import {
+  getBookmarks,
+  getCurrentProfile,
+  getReadingHistory,
+} from './api/accountApi.js'
 import { extractResults } from '../../shared/lib/extractResults.js'
 
 const LOAD_PROFILE_ERROR_MESSAGE = 'Не удалось загрузить профиль.'
 
-export function AccountPage({ onNavigateHome, onNavigateBook }) {
+export function AccountPage({ onNavigateHome, onNavigateBook, onLogout }) {
   const [profile, setProfile] = useState(null)
   const [readingHistory, setReadingHistory] = useState([])
+  const [bookmarks, setBookmarks] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
 
@@ -24,14 +30,16 @@ export function AccountPage({ onNavigateHome, onNavigateBook }) {
       setErrorMessage('')
 
       try {
-        const [profileData, historyData] = await Promise.all([
+        const [profileData, historyData, bookmarksData] = await Promise.all([
           getCurrentProfile(),
           getReadingHistory(),
+          getBookmarks(),
         ])
 
         if (!isCancelled) {
           setProfile(profileData)
           setReadingHistory(extractResults(historyData))
+          setBookmarks(extractResults(bookmarksData))
         }
       } catch (error) {
         if (!isCancelled) {
@@ -59,13 +67,14 @@ export function AccountPage({ onNavigateHome, onNavigateBook }) {
     return {
       libraryCount: readingHistory.length,
       readCount,
+      bookmarkCount: bookmarks.length,
       commentCount: profile?.reader_profile?.reviews_written ?? 0,
     }
-  }, [profile, readingHistory])
+  }, [bookmarks, profile, readingHistory])
 
   const activityItems = useMemo(
     () =>
-      readingHistory.slice(0, 2).map((item) => ({
+      readingHistory.slice(0, 3).map((item) => ({
         id: item.id,
         title: item.book_title,
         description: `Последняя прочитанная страница: ${item.last_page_read}`,
@@ -79,6 +88,7 @@ export function AccountPage({ onNavigateHome, onNavigateBook }) {
         <AccountHeader
           onNavigateHome={onNavigateHome}
           onNavigateBook={onNavigateBook}
+          onLogout={onLogout}
         />
 
         {isLoading && <section className="account-block">Загрузка профиля...</section>}
@@ -91,7 +101,8 @@ export function AccountPage({ onNavigateHome, onNavigateBook }) {
           <>
             <ProfileCard profile={profile} />
             <StatsSection stats={stats} />
-            <ReadingListSection books={readingHistory} />
+            <ReadingListSection books={readingHistory} onOpenBook={onNavigateBook} />
+            <BookmarksSection bookmarks={bookmarks} onOpenBook={onNavigateBook} />
             <ActivitySection items={activityItems} />
           </>
         )}

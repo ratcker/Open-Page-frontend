@@ -37,6 +37,7 @@
 }
 
 .account-header-links {
+  align-items: center;
   display: flex;
   flex-wrap: wrap;
   gap: 14px;
@@ -152,6 +153,10 @@
 
 .account-book-meta {
   margin: 0 0 4px;
+}
+
+.account-inline-button {
+  margin-top: 10px;
 }
 
 .account-activity-list {

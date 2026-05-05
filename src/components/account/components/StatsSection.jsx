@@ -15,7 +15,8 @@ export function StatsSection({ stats }) {
       <div className="account-stats-grid">
         <StatCard label="Книг в библиотеке" value={stats.libraryCount} />
         <StatCard label="Прочитано" value={stats.readCount} />
-        <StatCard label="Комментариев" value={stats.commentCount} />
+        <StatCard label="Закладок" value={stats.bookmarkCount} />
+        <StatCard label="Отзывов" value={stats.commentCount} />
       </div>
     </section>
   )

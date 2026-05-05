@@ -10,7 +10,11 @@ export function BookGrid({ books, isLoading, errorMessage, onOpenBook }) {
   }
 
   if (!books.length) {
-    return <section className="empty-state">По вашему запросу книги не найдены.</section>
+    return (
+      <section className="empty-state">
+        По вашему запросу книги не найдены.
+      </section>
+    )
   }
 
   return (

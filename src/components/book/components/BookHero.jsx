@@ -1,12 +1,27 @@
-function buildRatingText(book) {
-  if (typeof book.rating === 'number' || typeof book.rating === 'string') {
-    return String(book.rating)
-  }
+function buildStatsText(book) {
+  const views = book.views_count ?? 0
+  const downloads = book.downloads_count ?? 0
+  const comments = book.comments_count ?? 0
 
-  return 'Нет оценки'
+  return `${views} просмотров · ${downloads} скачиваний · ${comments} комментариев`
 }
 
-export function BookHero({ book }) {
+function getAuthorLabel(book) {
+  if (book.authors_list) {
+    return book.authors_list
+  }
+
+  if (Array.isArray(book.authors) && book.authors.length) {
+    return book.authors
+      .map((author) => author.full_name || author.name || '')
+      .filter(Boolean)
+      .join(', ')
+  }
+
+  return 'Автор не указан'
+}
+
+export function BookHero({ book, actions }) {
   return (
     <section className="book-hero">
       <div className="book-cover-large">
@@ -23,9 +38,7 @@ export function BookHero({ book }) {
 
       <div>
         <h2 className="book-hero-title">{book.title}</h2>
-        <p className="book-hero-author">
-          {book.authors_list || 'Автор не указан'}
-        </p>
+        <p className="book-hero-author">{getAuthorLabel(book)}</p>
 
         <div className="book-genre-list">
           {(book.genres ?? []).map((genre) => (
@@ -35,16 +48,8 @@ export function BookHero({ book }) {
           ))}
         </div>
 
-        <p className="book-rating">{buildRatingText(book)}</p>
-
-        <div className="book-action-row">
-          <button type="button" className="book-action-button">
-            Читать
-          </button>
-          <button type="button" className="book-action-button-secondary">
-            В библиотеку
-          </button>
-        </div>
+        <p className="book-rating">{buildStatsText(book)}</p>
+        {actions}
       </div>
     </section>
   )

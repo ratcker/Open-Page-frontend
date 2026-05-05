@@ -32,7 +32,7 @@ function getYearLabel(book) {
     return new Date(book.published_at).getFullYear()
   }
 
-  return '—'
+  return '-'
 }
 
 export function BookCard({ book, onOpenBook }) {
@@ -49,6 +49,9 @@ export function BookCard({ book, onOpenBook }) {
       <p className="book-author">{getAuthorLabel(book)}</p>
       <p className="book-meta">Жанр: {getGenreLabel(book)}</p>
       <p className="book-meta">Год: {getYearLabel(book)}</p>
+      <p className="book-meta">
+        {book.likes_count ?? 0} лайков · {book.comments_count ?? 0} комментариев
+      </p>
       <button
         type="button"
         className="book-open-button"

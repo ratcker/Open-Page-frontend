@@ -1,4 +1,4 @@
-export function HomeHeader({ onNavigateAccount }) {
+export function HomeHeader({ onNavigateAccount, onLogout }) {
   return (
     <header className="home-header">
       <div>
@@ -13,6 +13,9 @@ export function HomeHeader({ onNavigateAccount }) {
           onClick={onNavigateAccount}
         >
           Аккаунт
+        </button>
+        <button type="button" className="home-header-button" onClick={onLogout}>
+          Выйти
         </button>
       </div>
     </header>
